@@ -55,6 +55,6 @@ def calibrate_and_save(internal_corner_row, internal_corner_col):
     pickle.dump(mtx, open("./calibration/cameraMatrix.pkl", "wb"))
     pickle.dump(dist, open("./calibration/dist.pkl", "wb"))
 if __name__ == "__main__":
-    get_images(delete_prev_photos=True)
+    get_images(delete_prev_photos=False)
     calibrate_and_save()
 

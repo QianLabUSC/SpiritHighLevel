@@ -4,16 +4,17 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge 
 import cv2 as cv
 from top_view_visualization.GoProInterface.webcam import GoProWebcamPlayer
+from top_view_visualization.camera_calibration.opencv_calibration.camera_distortion import CameraDistortion
 
 
 class CameraPublisher(Node):
-
     def __init__(self):
         super().__init__('camera_publisher')
         self.publisher_ = self.create_publisher(Image, 'scenario_image', 10)
         timer_period = 0.1  # seconds
-        self.br = CvBridge()
+        self.bridge = CvBridge()
         self.webcam = GoProStream()
+        self.cameraDistortion = CameraDistortion()
         self.webcam.start_stream() #starts the http stream of photos
         self.timer = self.create_timer(timer_period, self.timer_callback) #publish on the topic "scienario_image" every 0.1 seconds 
 
@@ -23,7 +24,8 @@ class CameraPublisher(Node):
         # frame = cv.imread("src/top_view_visualization/top_view_visualization/sample.jpg") #sample image for testing purpose
         # ret = True #testing purposes 
         if ret:
-            self.publisher_.publish(self.br.cv2_to_imgmsg(frame))
+            frame = self.cameraDistortion.undistort(frame)
+            self.publisher_.publish(self.bridge.cv2_to_imgmsg(frame))
             # self.get_logger().info('Publishing video frame')
 
 
