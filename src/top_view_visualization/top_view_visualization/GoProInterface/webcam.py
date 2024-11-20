@@ -135,6 +135,8 @@ class Player:
         """
         return self._player_started.is_set()
 
+    def get_url(self):
+        return self._url
     @property
     def url(self) -> str:
         """The URL that is being used to view the stream (minus any OpenCV args)
@@ -155,7 +157,8 @@ class Player:
 
         While the player is running, get a frame and display it
         """
-        self._vid = cv.VideoCapture(self.url + "?overrun_nonfatal=1&fifo_size=50000000", cv.CAP_FFMPEG)
+        print(self.url + "?overrun_nonfatal=1&fifo_size=50000000")
+        self._vid = cv.VideoCapture(self.url, cv.CAP_FFMPEG)
         self._player_started.set()
         logging.info("Player started.")
         while not self._stop_player.is_set():
@@ -176,8 +179,8 @@ class Player:
         """
         logging.info(f"Starting player @ {url}")
         self.url = url
-        self._process.start()
-        self._player_started.wait()
+        # self._process.start()
+        # self._player_started.wait()
 
     def stop(self) -> None:
         """Stop the stream player and wait for the process to stop"""
@@ -241,6 +244,8 @@ class GoProWebcamPlayer:
     def open(self) -> None:
         """Enable the GoPro webcam."""
         self.webcam.enable()
+    def get_port(self) -> int:
+        return self.port
 
     def play(self, resolution: Optional[int] = None, fov: Optional[int] = None) -> None:
         """Configure and start the GoPro Webcam. Then open and display the stream.
@@ -253,7 +258,7 @@ class GoProWebcamPlayer:
             fov (Optional[int]): Field of view for webcam stream. Defaults to None (will be assigned by GoPro).
         """
         self.webcam.start(self.port, resolution, fov)
-        # self.player.start(GoProWebcamPlayer.STREAM_URL.format(port=self.port))
+        self.player.start(GoProWebcamPlayer.STREAM_URL.format(port=self.port))
 
     def close(self) -> None:
         """Stop the stream player and disable the GoPro webcam"""
